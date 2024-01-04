@@ -4,8 +4,31 @@ from pathlib import Path
 
 class MusicDataBase:
     def __init__(self, file: str | Path):
-        self.con = sqlite3.connect(file)
+        self.file = file
+        self.con = None
+        self.cur = None
+
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type:
+            print(f"Closing connection due to {exc_type}: {exc_value}")
+        self.close()
+
+    def connect(self):
+        self.con = sqlite3.connect(self.file)
         self.cur = self.con.cursor()
+
+    def close(self):
+        try:
+            self.con.close()
+        except AttributeError:
+            print(f"Can not close connection: {self.con}")
+        finally:
+            self.con = None
+            self.cur = None
 
     def commit(self):
         self.con.commit()

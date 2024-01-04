@@ -3,19 +3,18 @@ import pytest
 from client import Client
 from music_data_base import MusicDataBase
 
-import pytest
-
 
 @pytest.fixture(scope="class")
 def db():
-    return MusicDataBase(":memory:")
+    db = MusicDataBase(":memory:")
+    db.connect()
+    yield db
+    db.close()
 
 
 @pytest.fixture(scope="class")
 def client(db):
-    client = Client(db)
-    yield client
-    client.db.con.close()
+    return Client(db)
 
 
 class TestData:
