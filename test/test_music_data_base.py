@@ -17,8 +17,8 @@ class TestMusicDataBase:
     def test_table_columns(self, db):
         res = db.cur.execute("PRAGMA table_info(test_table)")
         assert res.fetchall() == [(0, 'id', 'INTEGER', 0, None, 1),
-                                  (1, 'title', '', 0, None, 0),
-                                  (2, 'format', '', 0, None, 0),
+                                  (1, 'title', 'TEXT', 0, None, 0),
+                                  (2, 'format', 'TEXT', 0, None, 0),
                                   (3, 'count', 'INTEGER', 0, None, 0)]
 
     def test_table_rows(self, db):

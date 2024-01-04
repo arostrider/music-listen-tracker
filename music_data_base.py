@@ -11,11 +11,14 @@ class MusicDataBase:
         self.con.commit()
 
     def create_new_table(self, name: str):
-        self.cur.execute(f"CREATE TABLE {name}"
-                         f"(id INTEGER PRIMARY KEY AUTOINCREMENT, title, format, count INTEGER)")
+        self.cur.execute(f"CREATE TABLE {name} "
+                         f"(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                         f"title TEXT UNIQUE, "
+                         f"format TEXT, "
+                         f"count INTEGER)")
 
     def insert_into_table(self, table: str, tracks: list[list[str, str]]):
-        self.cur.executemany(f"INSERT INTO {table} (title, format, count) VALUES(?, ?, 0)", tracks)
+        self.cur.executemany(f"INSERT OR IGNORE INTO {table} (title, format, count) VALUES(?, ?, 0)", tracks)
 
     def increase_track_play_count(self, table: str, track_title: str):
         self.cur.execute(f"UPDATE {table} SET count=count+1 WHERE title='{track_title}'")
