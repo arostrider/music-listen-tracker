@@ -11,7 +11,7 @@ class MusicDataBase:
         self.con.commit()
 
     def create_new_table(self, name: str):
-        self.cur.execute(f"CREATE TABLE {name} "
+        self.cur.execute(f"CREATE TABLE IF NOT EXISTS {name} "
                          f"(id INTEGER PRIMARY KEY AUTOINCREMENT, "
                          f"title TEXT UNIQUE, "
                          f"format TEXT, "
