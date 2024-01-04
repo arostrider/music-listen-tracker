@@ -1,20 +1,49 @@
+import os
+import subprocess
+
 import pytest
 
-from client import Client
+from client import Local, Remote
 from music_data_base import MusicDataBase
 
 
 @pytest.fixture(scope="class")
-def db():
-    db = MusicDataBase(":memory:")
-    db.connect()
-    yield db
-    db.close()
+def env(request):
+    return request.param
 
 
 @pytest.fixture(scope="class")
-def client(db):
-    return Client(db)
+def db(env):
+    if env == "local":
+        db = ":memory:"
+    elif env == "remote":
+        db = "test.db"
+    else:
+        raise ValueError
+
+    db = MusicDataBase(db)
+    db.connect()
+    yield db
+    db.close()
+    if env == "remote":
+        os.remove("test.db")
+
+
+@pytest.fixture(scope="class")
+def client(env, db):
+    if env == "local":
+        return Local(db=db)
+
+    if env == "remote":
+        return Remote(url="http://localhost:5000")
+
+
+@pytest.fixture(scope="class", autouse=True)
+def start_server(env, db):
+    print(f"Starting server in env: {env}")
+    if env == "remote":
+        subprocess.Popen(["powershell", "python ..\\server.py"])
+        print("Started server")
 
 
 class TestData:

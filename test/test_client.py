@@ -8,17 +8,18 @@ class NewTestTrack:
     format = "mp3"
 
 
+@pytest.mark.parametrize("env", ["local", "remote"], indirect=True)
 class TestClient:
-    def test_load_dir_to_db(self, client, test_data):
+    def test_load_dir_to_db(self, client, test_data, db):
         client.load_dir_to_db(dir_=test_data.tracks_dir, table_name=test_data.table_name)
 
-        res = client.db.cur.execute("SELECT * FROM neptune")
+        res = db.cur.execute("SELECT * FROM neptune")
         assert res.fetchall() == list(test_data.table_content)
 
-    def test_reloading_dir_to_db_does_not_change_anything_if_dir_content_is_same(self, client, test_data):
+    def test_reloading_dir_to_db_does_not_change_anything_if_dir_content_is_same(self, client, test_data, db):
         client.load_dir_to_db(dir_=test_data.tracks_dir, table_name=test_data.table_name)
 
-        res = client.db.cur.execute("SELECT * FROM neptune")
+        res = db.cur.execute("SELECT * FROM neptune")
         assert res.fetchall() == list(test_data.table_content)
 
     @pytest.fixture(scope="class")
@@ -32,10 +33,11 @@ class TestClient:
     def test_load_dir_to_db_adds_new_entry_to_db_if_there_is_new_file_in_dir(self,
                                                                              client,
                                                                              test_data,
-                                                                             add_temp_file_to_dir):
+                                                                             add_temp_file_to_dir,
+                                                                             db):
         client.load_dir_to_db(dir_=test_data.tracks_dir, table_name=test_data.table_name)
 
-        res = client.db.cur.execute("SELECT * FROM neptune")
+        res = db.cur.execute("SELECT * FROM neptune")
         rows = res.fetchall()
 
         assert all(i in rows for i in test_data.table_content), \

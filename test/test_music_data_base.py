@@ -1,6 +1,7 @@
 import pytest
 
 
+@pytest.mark.parametrize("env", ["local"], indirect=True)
 class TestMusicDataBase:
 
     @pytest.fixture(scope="class", autouse=True)
